@@ -14,6 +14,16 @@ mkdir -p "$APP/Contents/MacOS"
 cp "$BIN" "$APP/Contents/MacOS/PeatsMac"
 cp Resources/Info.plist "$APP/Contents/Info.plist"
 
+# App icon: Resources/AppIcon.png (1024x1024) -> AppIcon.icns
+ICONSET="build/AppIcon.iconset"
+rm -rf "$ICONSET"
+mkdir -p "$ICONSET" "$APP/Contents/Resources"
+for s in 16 32 128 256 512; do
+  sips -z $s $s Resources/AppIcon.png --out "$ICONSET/icon_${s}x${s}.png" >/dev/null
+  sips -z $((s * 2)) $((s * 2)) Resources/AppIcon.png --out "$ICONSET/icon_${s}x${s}@2x.png" >/dev/null
+done
+iconutil -c icns "$ICONSET" -o "$APP/Contents/Resources/AppIcon.icns"
+
 # Ad-hoc signature: enough for running locally. macOS asks for Bluetooth access on first launch.
 codesign --force --sign - "$APP"
 echo "Built $APP"

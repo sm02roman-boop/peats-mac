@@ -14,7 +14,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         statusItem = item
         if let button = item.button {
-            button.image = NSImage(systemSymbolName: "headphones", accessibilityDescription: "SoundPEATS")
+            button.image = AppIcons.earbuds()
             button.imagePosition = .imageLeading
             button.target = self
             button.action = #selector(statusItemClicked(_:))

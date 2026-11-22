@@ -33,8 +33,11 @@ struct PanelView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 10) {
-                Image(systemName: "headphones")
-                    .font(.title2)
+                Image(nsImage: AppIcons.earbuds())
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 26, height: 26)
                 VStack(alignment: .leading, spacing: 1) {
                     Text(state.connected ? state.model.displayName : "SOUNDPEATS")
                         .font(.headline)
@@ -251,8 +254,11 @@ struct PanelView: View {
     private var disconnected: some View {
         VStack(spacing: 12) {
             Spacer()
-            Image(systemName: "headphones")
-                .font(.system(size: 34))
+            Image(nsImage: AppIcons.earbuds())
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 40, height: 40)
                 .foregroundStyle(.secondary)
             Text(state.connecting != nil ? "Connecting…" : "No SoundPEATS earbuds connected")
                 .font(.headline)

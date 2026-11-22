@@ -1,4 +1,7 @@
-## PeatsMac 0.1.1
+## PeatsMac 0.1.2
+
+**New**
+- App icon (SoundPEATS "S" shield) and an earbuds icon in the menu bar instead of headphones.
 
 **Fixes**
 - Earbuds renamed in macOS (for example "Sam's T3 Pro") are now recognised: the app matches the model name as well as "SOUNDPEATS".
