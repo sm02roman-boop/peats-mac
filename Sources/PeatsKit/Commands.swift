@@ -188,7 +188,10 @@ public struct KnownPhone: Equatable, Identifiable {
     public let name: String
 
     public var id: String { addressText }
-    public var addressText: String { address.map { String(format: "%02X", $0) }.joined(separator: ":") }
+    public var addressText: String {
+        let digits = Array("0123456789ABCDEF")
+        return address.map { byte in String([digits[Int(byte >> 4)], digits[Int(byte & 0x0F)]]) }.joined(separator: ":")
+    }
 }
 
 public enum Update: Equatable {
