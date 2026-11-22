@@ -266,9 +266,19 @@ struct PanelView: View {
                     NSWorkspace.shared.open(url)
                 }
             }
+            if !controller.candidates.isEmpty && state.connecting == nil {
+                Divider().padding(.horizontal, 24)
+                Text("Not detected automatically? Pick your earbuds:")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                ForEach(controller.candidates) { device in
+                    Button(device.name) { controller.choose(device) }
+                }
+            }
             Spacer()
         }
         .frame(maxWidth: .infinity)
+        .onAppear { controller.refreshCandidates() }
     }
 
     // MARK: Footer

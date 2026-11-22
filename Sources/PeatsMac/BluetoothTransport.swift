@@ -44,12 +44,43 @@ final class BluetoothTransport: NSObject, IOBluetoothRFCOMMChannelDelegate {
 
     var isConnected: Bool { channel != nil }
 
+    struct PairedDevice: Identifiable, Equatable {
+        let name: String
+        let address: String
+        var id: String { address }
+    }
+
+    private static let savedKey = "device.address"
+    private static var savedAddress: String? { UserDefaults.standard.string(forKey: savedKey) }
+
+    /// The device the user picked in the panel, or one whose (possibly renamed) name looks like SoundPEATS.
+    static func matches(_ device: IOBluetoothDevice) -> Bool {
+        if let saved = savedAddress, device.addressString == saved { return true }
+        return isPeats(device.name)
+    }
+
     static func isPeats(_ name: String?) -> Bool {
         guard let name = name?.lowercased() else { return false }
         if let custom = ProcessInfo.processInfo.environment["PEATS_DEVICE"]?.lowercased(), !custom.isEmpty {
             return name.contains(custom)
         }
-        return name.contains("soundpeats")
+        // macOS shows whatever the user renamed the earbuds to ("Sam's T3 Pro"), so also accept the model name.
+        return name.contains("soundpeats") || name.contains("t3 pro") || name.contains("t3pro")
+    }
+
+    /// Every paired device that is connected right now, for the "choose your earbuds" list.
+    static func connectedDevices() -> [PairedDevice] {
+        let paired = IOBluetoothDevice.pairedDevices() as? [IOBluetoothDevice] ?? []
+        return paired.compactMap { device in
+            guard device.isConnected(), let address = device.addressString else { return nil }
+            return PairedDevice(name: device.nameOrAddress ?? address, address: address)
+        }
+    }
+
+    /// Remember a device the user picked, and look for it straight away.
+    func choose(address: String) {
+        UserDefaults.standard.set(address, forKey: Self.savedKey)
+        scan()
     }
 
     func start() {
@@ -100,7 +131,7 @@ final class BluetoothTransport: NSObject, IOBluetoothRFCOMMChannelDelegate {
             handleOpenFailure(opening.device, status: kIOReturnTimeout)
         }
         guard let paired = IOBluetoothDevice.pairedDevices() as? [IOBluetoothDevice] else { return }
-        let candidates = paired.filter { $0.isConnected() && Self.isPeats($0.name) }
+        let candidates = paired.filter { $0.isConnected() && Self.matches($0) }
         if candidates.isEmpty { onConnecting?(nil) }
 
         for candidate in candidates {

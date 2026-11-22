@@ -36,6 +36,9 @@ final class DeviceController: ObservableObject {
     /// Name of the last applied preset, or nil for the custom curve.
     @Published private(set) var eqPreset: String?
 
+    /// Connected Bluetooth devices, shown when no earbuds were recognised by name.
+    @Published private(set) var candidates: [BluetoothTransport.PairedDevice] = []
+
     private let transport = BluetoothTransport()
     private var parser = FrameParser()
     private var outbox: [[UInt8]] = []
@@ -62,6 +65,10 @@ final class DeviceController: ObservableObject {
     }
 
     // MARK: Connection
+
+    func refreshCandidates() { candidates = BluetoothTransport.connectedDevices() }
+
+    func choose(_ device: BluetoothTransport.PairedDevice) { transport.choose(address: device.address) }
 
     private func connected(name: String, address: String) {
         parser.reset()
