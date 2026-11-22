@@ -1,21 +1,16 @@
-## PeatsMac 0.2.0 — new look
+## PeatsMac 0.3.0 — Glass
 
-The panel now follows the [nothing-x-mac](https://github.com/farhancdr/nothing-x-mac) design, with SoundPEATS T3 Pro controls:
+The whole panel is restyled as glassmorphism. Layout, pages and behaviour are unchanged from 0.2.0, and the menu bar item (Dot Bud icon and `82·79`) is the same.
 
-- Dot-matrix battery for left, right and case, and a Dot Bud icon with `82·79` in the menu bar.
-- **Noise Control** (ANC / Transparency / Off) and **Prompt Volume** on the main page.
-- **Quick Settings** tiles: Game Mode, Light Effect, Lock Touch, Dynamic EQ, Movie Mode, Panoramic Sound, Dual Connection, plus voice prompt language and device info.
-- **Dual Connection** page with the device list (experimental on the T3 Pro).
-- **Equalizer** page: presets, frequency curve, 8 band sliders and saved presets (experimental on the T3 Pro).
-- **Controls** page: tap, double tap, triple tap and tap & hold for each earbud.
-
-Only controls your earbuds actually answer are shown. Earbuds renamed in macOS are recognised, or you can pick them from a list.
+- Frosted background with soft coloured glows behind the glass.
+- Blurred glass cards for battery, tiles, tips, buttons and the segmented control, with a bright rim light and soft shadows.
+- The "Unverified model" notice is gone.
 
 **Install**
 1. Download `PeatsMac.zip` below and unzip it.
 2. In Terminal: `xattr -cr ~/Downloads/PeatsMac.app` (ad-hoc signed, not notarized).
 3. Connect the T3 Pro in System Settings → Bluetooth, close PeatsAudio on your phone, then open PeatsMac and allow Bluetooth access.
 
-**Status: early, not yet verified on real T3 Pro hardware.** Debug log: `PEATS_DEBUG=1 ~/Downloads/PeatsMac.app/Contents/MacOS/PeatsMac`
+Debug log: `PEATS_DEBUG=1 ~/Downloads/PeatsMac.app/Contents/MacOS/PeatsMac`
 
 Credits: UI and app structure from [nothing-x-mac](https://github.com/farhancdr/nothing-x-mac) by farhancdr; protocol research by [PairFree](https://github.com/Omega-Destroyer/PairFree).

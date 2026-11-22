@@ -42,6 +42,7 @@ struct PanelView: View {
             }
         }
         .frame(width: Self.width)
+        .background(GlassBackground())
         .foregroundStyle(Theme.label)
         .panelAccent(system: false)
         .animation(.easeOut(duration: 0.2), value: nav.page)
@@ -71,7 +72,10 @@ extension PanelPage {
 /// 1 pt full-width line between sections.
 struct PanelSeparator: View {
     var body: some View {
-        Rectangle().fill(Theme.separator).frame(height: 1)
+        Rectangle()
+            .fill(LinearGradient(colors: [Color.clear, Theme.separator, Color.clear],
+                                 startPoint: .leading, endPoint: .trailing))
+            .frame(height: 1)
     }
 }
 
@@ -169,7 +173,7 @@ struct TipBox: View {
         .fixedSize(horizontal: false, vertical: true)
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(10)
-        .background(RoundedRectangle(cornerRadius: 10).fill(Theme.controlFill))
+        .background(GlassShape(radius: 12))
     }
 }
 
@@ -200,8 +204,9 @@ struct HeaderIconButton: View {
                 .font(.system(size: 14))
                 .foregroundStyle(Theme.secondaryLabel)
                 .frame(width: 26, height: 26)
-                .background(RoundedRectangle(cornerRadius: 6)
-                    .fill(hovering.value ? Theme.controlFillStrong : .clear))
+                .background {
+                    if hovering.value { GlassShape(radius: 8, strong: true) }
+                }
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -260,11 +265,9 @@ struct DotSegmented<ID: Hashable>: View {
                         .padding(.horizontal, 7) // keeps labels off the thumb's edges
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(
-                        RoundedRectangle(cornerRadius: radius - 2)
-                            .fill(selected ? Theme.selectedSegment : .clear)
-                            .shadow(color: selected ? Theme.segmentShadow : .clear, radius: 0.75, y: 0.5)
-                    )
+                    .background {
+                        if selected { GlassShape(radius: radius - 2, strong: true, shadow: true) }
+                    }
                     .opacity(pending && !selected ? 0.5 : 1)
                     .contentShape(Rectangle())
                 }
@@ -274,7 +277,7 @@ struct DotSegmented<ID: Hashable>: View {
         }
         .padding(2)
         .frame(height: height)
-        .background(RoundedRectangle(cornerRadius: radius).fill(Theme.controlFill))
+        .background(GlassShape(radius: radius))
         .animation(.spring(response: 0.25, dampingFraction: 0.9), value: selection)
     }
 }
@@ -291,8 +294,13 @@ struct PanelButtonStyle: ButtonStyle {
             .foregroundStyle(primary ? Color.white : Theme.label)
             .padding(.horizontal, 12)
             .frame(minHeight: 28)
-            .background(RoundedRectangle(cornerRadius: 6)
-                .fill(primary ? accentFill : Theme.controlFillStrong))
+            .background {
+                if primary {
+                    GlassShape(radius: 8, tint: accentFill, tintOpacity: 0.85, strong: true)
+                } else {
+                    GlassShape(radius: 8, strong: true)
+                }
+            }
             .opacity(configuration.isPressed ? 0.75 : enabled ? 1 : 0.55)
             .contentShape(Rectangle())
     }
@@ -331,8 +339,13 @@ struct SelectRow: View {
             }
             .padding(.horizontal, 8)
             .frame(height: height)
-            .background(RoundedRectangle(cornerRadius: 6)
-                .fill(selected ? Theme.controlFill : hovering.value ? Theme.controlFill.opacity(0.6) : .clear))
+            .background {
+                if selected {
+                    GlassShape(radius: 8)
+                } else if hovering.value {
+                    GlassShape(radius: 8).opacity(0.6)
+                }
+            }
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -358,10 +371,9 @@ struct HoverRowStyle: ButtonStyle {
                 .contentShape(Rectangle())
                 .padding(.horizontal, 8)
                 .padding(.vertical, 3)
-                .background(
-                    RoundedRectangle(cornerRadius: 6)
-                        .fill(hovering.value && enabled ? Theme.controlFill : .clear)
-                )
+                .background {
+                    if hovering.value && enabled { GlassShape(radius: 8) }
+                }
                 .padding(.horizontal, 6)
                 .opacity(enabled ? 1 : 0.45)
                 .onHover { hovering.value = $0 }

@@ -119,8 +119,8 @@ struct QuickTile: View {
                 }
                 .padding(10)
                 .frame(maxWidth: .infinity, minHeight: 76, maxHeight: 76, alignment: .leading)
-                .background(RoundedRectangle(cornerRadius: 10)
-                    .fill(hovering.value ? Theme.controlFillStrong : Theme.controlFill))
+                .background(GlassShape(radius: 14, tint: on ? accentFill : nil, tintOpacity: 0.22,
+                                       strong: hovering.value, shadow: true))
                 .opacity(pending ? 0.5 : 1)
                 .contentShape(Rectangle())
             }
@@ -200,7 +200,7 @@ private struct DualDeviceRow: View {
             Image(systemName: isSelf ? "laptopcomputer" : Self.symbol(for: phone.name))
                 .font(.system(size: 13))
                 .frame(width: 26, height: 26)
-                .background(RoundedRectangle(cornerRadius: 6).fill(Theme.controlFill))
+                .background(GlassShape(radius: 8))
             VStack(alignment: .leading, spacing: 1) {
                 Text(isSelf ? "This Mac" : phone.name.isEmpty ? "Unknown device" : phone.name)
                     .font(.system(size: 13)).lineLimit(1)
@@ -258,7 +258,7 @@ private struct DeviceInfo: View {
         let state = device.state
         VStack(spacing: 6) {
             SectionCaption("Device").padding(.horizontal, -Theme.inset).padding(.bottom, -2)
-            row("Model", state.model.displayName)
+            row("Model", state.model.verified ? state.model.displayName : (state.name ?? state.model.displayName))
             row("Firmware", firmware(state.firmware))
             if let address = state.address, !address.isEmpty {
                 row("Bluetooth", address.uppercased().replacingOccurrences(of: "-", with: ":"))

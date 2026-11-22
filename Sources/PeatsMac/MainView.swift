@@ -15,12 +15,6 @@ struct MainView: View {
             MainHeader()
             PanelSeparator()
             if state.connected {
-                if !state.model.verified {
-                    TipBox(bold: "Limited support.",
-                           text: "This model hasn't been checked yet, so you only see the controls your earbuds answered.")
-                        .padding(.horizontal, 12)
-                        .padding(.top, 10)
-                }
                 BatteryCells()
                 PanelSeparator()
                 if state.values[.noise] != nil {
@@ -80,7 +74,7 @@ private struct MainHeader: View {
 
     private var status: String {
         let state = device.state
-        if state.connected { return state.model.verified ? "Connected" : "Unverified model" }
+        if state.connected { return "Connected" }
         return state.connecting != nil ? "Connecting…" : "Not connected"
     }
 }
@@ -94,7 +88,7 @@ private struct BatteryCells: View {
     var body: some View {
         let battery = device.state.battery
         let gestures = !device.state.keys.isEmpty
-        HStack(spacing: 4) {
+        HStack(spacing: 6) {
             BatteryCell(icon: .bud(mirrored: true), label: "Left", level: battery.left,
                         action: gestures ? { nav.page = .controls(.left) } : nil)
             BatteryCell(icon: .bud(mirrored: false), label: "Right", level: battery.right,
@@ -147,8 +141,7 @@ struct BatteryCell: View {
             }
             .padding(8)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(RoundedRectangle(cornerRadius: 8)
-                .fill(action != nil && hovering.value ? Theme.controlFill : .clear))
+            .background(GlassShape(radius: 12, strong: action != nil && hovering.value, shadow: true))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -262,7 +255,7 @@ struct LevelSlider: View {
 private struct ConnectingSkeleton: View {
     var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 4) {
+            HStack(spacing: 6) {
                 BatteryCell(icon: .bud(mirrored: true), label: "Left", level: nil, action: nil, skeleton: true)
                 BatteryCell(icon: .bud(mirrored: false), label: "Right", level: nil, action: nil, skeleton: true)
                 BatteryCell(icon: .symbol("earbuds.case"), label: "Case", level: nil, action: nil, skeleton: true)
@@ -351,6 +344,6 @@ private struct CandidateRow: View {
         .padding(.leading, 10)
         .padding(.trailing, 6)
         .frame(height: 40)
-        .background(RoundedRectangle(cornerRadius: 8).strokeBorder(Theme.separator))
+        .background(GlassShape(radius: 10))
     }
 }

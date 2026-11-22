@@ -17,6 +17,8 @@ struct EqualizerView: View {
             if customSelected {
                 EqCurve(gains: device.eqGains)
                     .frame(height: 84)
+                    .padding(8)
+                    .background(GlassShape(radius: 12, shadow: true))
                     .padding(.horizontal, Theme.inset)
                     .padding(.top, 12)
                     .padding(.bottom, 4)
