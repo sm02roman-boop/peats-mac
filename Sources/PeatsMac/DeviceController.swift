@@ -24,6 +24,8 @@ struct DeviceState: Equatable {
     /// Only features the earbuds answered a GET for. A GET the firmware lacks gets no reply.
     var values: [Feature: Int] = [:]
     var keys: [TouchGesture: KeyAction] = [:]
+    /// Filled only when the user asks (the list holds other devices' names).
+    var phones: [KnownPhone] = []
 }
 
 final class DeviceController: ObservableObject {
@@ -132,6 +134,10 @@ final class DeviceController: ObservableObject {
             }
         case .feature(let feature, let value):
             state.values[feature] = value
+        case .knownPhone(let phone):
+            state.phones.removeAll { $0.address == phone.address }
+            state.phones.append(phone)
+            state.phones.sort { $0.index < $1.index }
         case .keys(let keys):
             state.keys.merge(keys) { _, new in new }
         }
@@ -149,6 +155,18 @@ final class DeviceController: ObservableObject {
         state.keys[gesture] = action
         send([Request.setKey(gesture, action)])
         readBack(Request.keys)
+    }
+
+    // MARK: Dual connection devices (experimental, not probed on a T3 Pro)
+
+    func loadPhones() {
+        state.phones = []
+        send([Request.knownPhones])
+    }
+
+    func setPhone(_ phone: KnownPhone, connect: Bool) {
+        send([Request.connectPhone(address: phone.address, connect: connect)])
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in self?.loadPhones() }
     }
 
     // MARK: Equalizer (write-only, unverified on a real T3 Pro)

@@ -139,6 +139,13 @@ public enum BatteryPart: CaseIterable {
 public enum Request {
     public static let firmware = Frame.encode(command: 0x0309)
     public static let keys = Frame.encode(command: 0x03AA)
+    /// Dual connection devices. Not part of `probe`: the reply holds other people's device names.
+    public static let knownPhones = Frame.encode(command: 0x0352)
+
+    /// Connect (`true`) or disconnect (`false`) one of the known phones: `[address×6, 1|0]`.
+    public static func connectPhone(address: [UInt8], connect: Bool) -> [UInt8] {
+        Frame.encode(command: 0x0353, payload: address + [connect ? 1 : 0])
+    }
 
     public static func get(_ feature: Feature) -> [UInt8] {
         Frame.encode(command: feature.getCommand)
@@ -172,8 +179,21 @@ public enum Request {
 
 // MARK: - Replies
 
+/// A phone or computer the earbuds know, from command `03 52` (SOUNDPEATS 2.5.3).
+public struct KnownPhone: Equatable, Identifiable {
+    public let index: Int
+    public let isConnected: Bool
+    /// Bluetooth address, 6 bytes.
+    public let address: [UInt8]
+    public let name: String
+
+    public var id: String { addressText }
+    public var addressText: String { address.map { String(format: "%02X", $0) }.joined(separator: ":") }
+}
+
 public enum Update: Equatable {
     case firmware(String)
+    case knownPhone(KnownPhone)
     case battery(BatteryPart, percent: Int?)
     case feature(Feature, value: Int)
     case keys([TouchGesture: KeyAction])
@@ -190,6 +210,8 @@ public enum Codec {
             return firmware(payload).map { .firmware($0) }
         case 0x83AA:
             return .keys(keys(payload))
+        case 0x8352:
+            return knownPhone(payload).map { .knownPhone($0) }
         default:
             break
         }
@@ -219,6 +241,14 @@ public enum Codec {
         let bytes = payload.first == 0 ? Array(payload.dropFirst()) : payload
         let text = String(decoding: bytes.filter { $0 >= 0x20 && $0 < 0x7F }, as: UTF8.self)
         return text.isEmpty ? nil : text
+    }
+
+    /// `[entry, connected, address×6, name…, 0]`. On `S13` a 41-byte reply has one extra leading byte.
+    static func knownPhone(_ payload: [UInt8]) -> KnownPhone? {
+        let bytes = payload.count == 41 ? Array(payload.dropFirst()) : payload
+        guard bytes.count >= 9 else { return nil }
+        let name = String(decoding: bytes[8...].prefix { $0 != 0 }, as: UTF8.self)
+        return KnownPhone(index: Int(bytes[0]), isConnected: bytes[1] == 1, address: Array(bytes[2..<8]), name: name)
     }
 
     /// `(gesture, action)` pairs. Qualcomm models put a status byte first, which makes the

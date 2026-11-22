@@ -7,6 +7,10 @@ It is a re-implementation of [nothing-x-mac](https://github.com/farhancdr/nothin
 same shape (RFCOMM over IOBluetooth, a protocol library with no UI, a SwiftUI popover), different wire format.
 See [docs/PROTOCOL.md](docs/PROTOCOL.md) for the protocol and where each fact comes from.
 
+## Credits
+
+Built on the structure of [nothing-x-mac](https://github.com/farhancdr/nothing-x-mac) by [farhancdr](https://github.com/farhancdr) (MIT, see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)). The SoundPEATS protocol work is [PairFree](https://github.com/Omega-Destroyer/PairFree)'s.
+
 ## Status: written but not yet run on a Mac
 
 It was written without a Swift compiler or a T3 Pro in reach. What *has* been checked:

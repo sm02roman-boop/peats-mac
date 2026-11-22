@@ -80,6 +80,11 @@ struct PanelView: View {
         section("Features") {
             toggle("Game mode", "Lower latency for video and games", .gameMode)
             toggle("Dual connection", "Stay connected to two devices", .multipoint)
+            if state.values[.multipoint] != nil {
+                DisclosureGroup("Dual connection devices (experimental)") {
+                    phonesList.padding(.top, 6)
+                }
+            }
             toggle("Lock touch controls", "Ignore taps on the earbuds", .touchLock)
             toggle("Light effect", nil, .lightEffect)
             toggle("Dynamic EQ", nil, .dynamicEq)
@@ -176,6 +181,31 @@ struct PanelView: View {
             .labelsHidden()
         }
         .frame(maxWidth: .infinity)
+    }
+
+    private var phonesList: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Button("Load devices") { controller.loadPhones() }
+            if state.phones.isEmpty {
+                Text("Nothing yet. If nothing appears after a few seconds, this T3 Pro firmware does not report its connected devices.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            ForEach(state.phones) { phone in
+                HStack {
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(phone.name.isEmpty ? "Unknown device" : phone.name)
+                        Text(phone.addressText)
+                            .font(.caption.monospacedDigit())
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Button(phone.isConnected ? "Disconnect" : "Connect") {
+                        controller.setPhone(phone, connect: !phone.isConnected)
+                    }
+                }
+            }
+        }
     }
 
     private var equalizer: some View {

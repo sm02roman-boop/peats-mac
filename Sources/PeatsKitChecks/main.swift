@@ -96,6 +96,17 @@ if case .keys(let keys)? = decode(0x83AA, [0x00] + keyBytes) {
     check(false, "custom keys with status byte did not decode")
 }
 
+// MARK: Dual connection devices (03 52 / 03 53)
+
+if case .knownPhone(let phone)? = decode(0x8352, [1, 1, 0xAA, 0xBB, 0xCC, 0x01, 0x02, 0x03] + Array("MacBook".utf8) + [0]) {
+    check(phone.index == 1 && phone.isConnected, "known phone entry and connected flag")
+    check(phone.addressText == "AA:BB:CC:01:02:03" && phone.name == "MacBook", "known phone address and name")
+} else {
+    check(false, "known phone reply did not decode")
+}
+check(hex(Request.connectPhone(address: [1, 2, 3, 4, 5, 6], connect: false)) == "FF 04 00 07 00 0A 03 53 01 02 03 04 05 06 00", "connect phone frame")
+check(!Request.probe.contains(Request.knownPhones), "probe never asks for other people's device names")
+
 // MARK: Model
 
 check(ModelInfo.parse(firmware: "ZKLXT3PRO_20250428_v0.0.31").code == "ZKLXT3PRO", "firmware code")

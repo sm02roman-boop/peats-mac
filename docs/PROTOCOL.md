@@ -63,6 +63,15 @@ shows only what answered. A SET usually gets no reply of its own; the app reads 
 Not answered by the T3 Pro (so not offered): ANC levels, transparency level, in-ear detection,
 LDAC, LE Audio, auto shutdown, spatial audio, Dolby, adaptive volume, find earbuds, fit test, water drain.
 
+### Dual connection devices (experimental)
+
+`03 52` lists the phones the earbuds know: each reply is `[entry, connected, address×6, name…, 0]`
+(on `S13` a 41-byte reply has one extra leading byte). `03 53` with `[address×6, 1|0]` connects or
+disconnects one. Both come from SOUNDPEATS 2.5.3 via PairFree, were **not** in the T3 Pro probe (PairFree
+never reads `03 52` unasked, because it holds other people's names), and how entries are enumerated is
+unknown. PeatsMac only sends them when you press *Load devices* / *Connect*. If the T3 Pro stays silent,
+only the on/off switch (`03 14` / `03 15`) exists on this firmware.
+
 ### Touch gestures
 
 SET payload `[gesture, action]`, one gesture per frame. Gestures: 1 tap L, 2 tap R, 3 double L, 4 double R,
