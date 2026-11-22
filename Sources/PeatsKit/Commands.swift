@@ -86,7 +86,7 @@ public enum PanoramicMode: Int, CaseIterable, Identifiable {
 
 // MARK: - Touch gestures
 
-public enum Gesture: UInt8, CaseIterable, Identifiable {
+public enum TouchGesture: UInt8, CaseIterable, Identifiable {
     case tapLeft = 1, tapRight, doubleLeft, doubleRight, tripleLeft, tripleRight, holdLeft, holdRight
     public var id: UInt8 { rawValue }
 
@@ -155,7 +155,7 @@ public enum Request {
     public static var battery: [[UInt8]] { BatteryPart.allCases.map { get($0) } }
 
     /// One gesture per frame: `[gesture, action]`.
-    public static func setKey(_ gesture: Gesture, _ action: KeyAction) -> [UInt8] {
+    public static func setKey(_ gesture: TouchGesture, _ action: KeyAction) -> [UInt8] {
         Frame.encode(command: 0x03AB, payload: [gesture.rawValue, action.rawValue])
     }
 
@@ -176,7 +176,7 @@ public enum Update: Equatable {
     case firmware(String)
     case battery(BatteryPart, percent: Int?)
     case feature(Feature, value: Int)
-    case keys([Gesture: KeyAction])
+    case keys([TouchGesture: KeyAction])
 }
 
 public enum Codec {
@@ -223,12 +223,12 @@ public enum Codec {
 
     /// `(gesture, action)` pairs. Qualcomm models put a status byte first, which makes the
     /// length odd; the T3 Pro sends the 16 bytes bare.
-    static func keys(_ payload: [UInt8]) -> [Gesture: KeyAction] {
+    static func keys(_ payload: [UInt8]) -> [TouchGesture: KeyAction] {
         let bytes = payload.count % 2 == 1 ? Array(payload.dropFirst()) : payload
-        var result: [Gesture: KeyAction] = [:]
+        var result: [TouchGesture: KeyAction] = [:]
         var index = 0
         while index + 1 < bytes.count {
-            if let gesture = Gesture(rawValue: bytes[index]), let action = KeyAction(rawValue: bytes[index + 1]) {
+            if let gesture = TouchGesture(rawValue: bytes[index]), let action = KeyAction(rawValue: bytes[index + 1]) {
                 result[gesture] = action
             }
             index += 2

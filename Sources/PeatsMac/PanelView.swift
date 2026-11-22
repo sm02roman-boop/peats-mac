@@ -121,12 +121,12 @@ struct PanelView: View {
 
         if !state.keys.isEmpty {
             section("Touch controls") {
-                ForEach(gestureRows, id: \.0) { row in
+                ForEach(gestureRows) { row in
                     HStack(spacing: 8) {
-                        Text(row.0)
+                        Text(row.title)
                             .frame(width: 92, alignment: .leading)
-                        keyPicker(side: "L", gesture: row.1)
-                        keyPicker(side: "R", gesture: row.2)
+                        keyPicker(side: "L", gesture: row.left)
+                        keyPicker(side: "R", gesture: row.right)
                     }
                 }
             }
@@ -143,16 +143,23 @@ struct PanelView: View {
         }
     }
 
-    private var gestureRows: [(String, Gesture, Gesture)] {
+    private struct GestureRow: Identifiable {
+        let title: String
+        let left: TouchGesture
+        let right: TouchGesture
+        var id: String { title }
+    }
+
+    private var gestureRows: [GestureRow] {
         [
-            ("Tap", .tapLeft, .tapRight),
-            ("Double tap", .doubleLeft, .doubleRight),
-            ("Triple tap", .tripleLeft, .tripleRight),
-            ("Press & hold", .holdLeft, .holdRight),
+            GestureRow(title: "Tap", left: .tapLeft, right: .tapRight),
+            GestureRow(title: "Double tap", left: .doubleLeft, right: .doubleRight),
+            GestureRow(title: "Triple tap", left: .tripleLeft, right: .tripleRight),
+            GestureRow(title: "Press & hold", left: .holdLeft, right: .holdRight),
         ]
     }
 
-    private func keyPicker(side: String, gesture: Gesture) -> some View {
+    private func keyPicker(side: String, gesture: TouchGesture) -> some View {
         HStack(spacing: 4) {
             Text(side)
                 .font(.caption)

@@ -23,7 +23,7 @@ struct DeviceState: Equatable {
     var battery = Battery()
     /// Only features the earbuds answered a GET for. A GET the firmware lacks gets no reply.
     var values: [Feature: Int] = [:]
-    var keys: [Gesture: KeyAction] = [:]
+    var keys: [TouchGesture: KeyAction] = [:]
 }
 
 final class DeviceController: ObservableObject {
@@ -145,7 +145,7 @@ final class DeviceController: ObservableObject {
         readBack(Request.get(feature))
     }
 
-    func setKey(_ gesture: Gesture, _ action: KeyAction) {
+    func setKey(_ gesture: TouchGesture, _ action: KeyAction) {
         state.keys[gesture] = action
         send([Request.setKey(gesture, action)])
         readBack(Request.keys)
