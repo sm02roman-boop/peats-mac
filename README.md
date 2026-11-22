@@ -4,12 +4,12 @@ A menu bar app for macOS that controls **SoundPEATS T3 Pro** earbuds (the job Pe
 battery, ANC / transparency, game mode, dual connection, touch controls, voice prompts and an 8-band equalizer.
 
 It is a re-implementation of [nothing-x-mac](https://github.com/farhancdr/nothing-x-mac) for the SoundPEATS protocol:
-same UI design and shape (RFCOMM over IOBluetooth, a protocol library with no UI, a SwiftUI popover), different wire format.
+same app structure (RFCOMM over IOBluetooth, a protocol library with no UI, a menu bar popover), different wire format and its own UI.
 See [docs/PROTOCOL.md](docs/PROTOCOL.md) for the protocol and where each fact comes from.
 
 ## Credits
 
-Built on the structure of [nothing-x-mac](https://github.com/farhancdr/nothing-x-mac) by [farhancdr](https://github.com/farhancdr) (MIT, see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)). The SoundPEATS protocol work is [PairFree](https://github.com/Omega-Destroyer/PairFree)'s.
+App structure (Bluetooth transport, menu bar item) adapted from [nothing-x-mac](https://github.com/farhancdr/nothing-x-mac) by [farhancdr](https://github.com/farhancdr) (MIT, see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)). The SoundPEATS protocol work is [PairFree](https://github.com/Omega-Destroyer/PairFree)'s.
 
 ## Status: written but not yet run on a Mac
 

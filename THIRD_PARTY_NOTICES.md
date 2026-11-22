@@ -2,11 +2,11 @@
 
 ## nothing-x-mac
 
-PeatsMac's Bluetooth transport (`Sources/PeatsMac/BluetoothTransport.swift`), its frame-stream parser
-structure, and the menu bar / popover app layout are adapted from
+PeatsMac's Bluetooth transport (`Sources/PeatsMac/BluetoothTransport.swift`) and the overall app structure (menu bar
+status item with a popover, a controller that owns the transport) are adapted from
 [nothing-x-mac](https://github.com/farhancdr/nothing-x-mac) by **farhancdr**, which itself includes portions from
-[nothing-x-macos](https://github.com/yashraut362/nothing-x-mac) by Yash Raut. The SoundPEATS protocol facts come from
-[PairFree](https://github.com/Omega-Destroyer/PairFree)'s analysis of PeatsAudio (see `docs/PROTOCOL.md`).
+[nothing-x-macos](https://github.com/yashraut362/nothing-x-mac) by Yash Raut. PeatsMac's UI is its own. The SoundPEATS
+protocol facts come from [PairFree](https://github.com/Omega-Destroyer/PairFree)'s analysis of PeatsAudio (see `docs/PROTOCOL.md`).
 
 nothing-x-mac is licensed as follows:
 

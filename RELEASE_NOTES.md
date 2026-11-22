@@ -1,10 +1,8 @@
-## PeatsMac 0.3.0 — Glass
+## PeatsMac 0.4.0 — plain native UI
 
-The whole panel is restyled as glassmorphism. Layout, pages and behaviour are unchanged from 0.2.0, and the menu bar item (Dot Bud icon and `82·79`) is the same.
-
-- Frosted background with soft coloured glows behind the glass.
-- Blurred glass cards for battery, tiles, tips, buttons and the segmented control, with a bright rim light and soft shadows.
-- The "Unverified model" notice is gone.
+- New UI: a single scrolling panel with standard macOS controls and the system accent colour. No glass effects and no Nothing-style design.
+- The menu bar item is back to the first release's: headphones icon with the battery percentage next to it.
+- Everything the earbuds answer is still there: battery, noise control, game mode, dual connection, touch lock, light effect, dynamic EQ, movie mode, prompt volume and language, panoramic sound, touch controls, and the experimental equalizer and dual-connection device list.
 
 **Install**
 1. Download `PeatsMac.zip` below and unzip it.
@@ -13,4 +11,4 @@ The whole panel is restyled as glassmorphism. Layout, pages and behaviour are un
 
 Debug log: `PEATS_DEBUG=1 ~/Downloads/PeatsMac.app/Contents/MacOS/PeatsMac`
 
-Credits: UI and app structure from [nothing-x-mac](https://github.com/farhancdr/nothing-x-mac) by farhancdr; protocol research by [PairFree](https://github.com/Omega-Destroyer/PairFree).
+Credits: Bluetooth transport and app structure adapted from [nothing-x-mac](https://github.com/farhancdr/nothing-x-mac) by farhancdr; protocol research by [PairFree](https://github.com/Omega-Destroyer/PairFree).
