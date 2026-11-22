@@ -1,8 +1,17 @@
-## PeatsMac 0.4.0 — plain native UI
+## PeatsMac 0.3.0
 
-- New UI: a single scrolling panel with standard macOS controls and the system accent colour. No glass effects and no Nothing-style design.
-- The menu bar item is back to the first release's: headphones icon with the battery percentage next to it.
-- Everything the earbuds answer is still there: battery, noise control, game mode, dual connection, touch lock, light effect, dynamic EQ, movie mode, prompt volume and language, panoramic sound, touch controls, and the experimental equalizer and dual-connection device list.
+A macOS menu bar app for SoundPEATS T3 Pro earbuds. Universal binary (Intel + Apple Silicon), macOS 13+.
+
+**Highlights**
+- Glass-style panel: frosted background, blurred glass cards, bright rim light.
+- Menu bar: AirPods Pro icon with the left·right battery next to it (for example `82·79`); the icon dims until the earbuds are connected.
+- Battery for left, right and case; Noise Control (ANC / Transparency / Off); Prompt Volume.
+- Quick Settings: Game Mode, Light Effect, Lock Touch, Dynamic EQ, Movie Mode, Panoramic Sound, Dual Connection, voice prompt language, device info.
+- Controls: tap, double tap, triple tap and tap & hold for each earbud.
+- Equalizer (presets, curve, 8 bands, saved presets) and the Dual Connection device list are experimental on the T3 Pro.
+- Earbuds renamed in macOS are recognised, or you can pick them from a list.
+
+Only controls your earbuds actually answer are shown.
 
 **Install**
 1. Download `PeatsMac.zip` below and unzip it.
@@ -11,4 +20,4 @@
 
 Debug log: `PEATS_DEBUG=1 ~/Downloads/PeatsMac.app/Contents/MacOS/PeatsMac`
 
-Credits: Bluetooth transport and app structure adapted from [nothing-x-mac](https://github.com/farhancdr/nothing-x-mac) by farhancdr; protocol research by [PairFree](https://github.com/Omega-Destroyer/PairFree).
+Credits: panel layout, Bluetooth transport and app structure adapted from [nothing-x-mac](https://github.com/farhancdr/nothing-x-mac) by farhancdr; protocol research by [PairFree](https://github.com/Omega-Destroyer/PairFree).
