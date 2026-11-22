@@ -77,6 +77,12 @@ final class BluetoothTransport: NSObject, IOBluetoothRFCOMMChannelDelegate {
         }
     }
 
+    /// This Mac's own Bluetooth address (AA:BB:CC:DD:EE:FF), if macOS reports it.
+    static var hostAddress: String? {
+        let host: IOBluetoothHostController? = IOBluetoothHostController.default()
+        return host?.addressAsString()?.replacingOccurrences(of: "-", with: ":").uppercased()
+    }
+
     /// Remember a device the user picked, and look for it straight away.
     func choose(address: String) {
         UserDefaults.standard.set(address, forKey: Self.savedKey)

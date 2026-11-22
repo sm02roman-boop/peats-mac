@@ -18,14 +18,22 @@ struct DeviceState: Equatable {
     /// Earbuds the control channel is being opened to (before `connected`).
     var connecting: String?
     var name: String?
+    var address: String?
     var firmware: String?
     var model = ModelInfo.identify(firmware: nil)
     var battery = Battery()
     /// Only features the earbuds answered a GET for. A GET the firmware lacks gets no reply.
     var values: [Feature: Int] = [:]
     var keys: [TouchGesture: KeyAction] = [:]
-    /// Filled only when the user asks (the list holds other devices' names).
+    /// Filled only when the Dual Connection page asks (the list holds other devices' names).
     var phones: [KnownPhone] = []
+}
+
+/// A custom EQ the user saved on this Mac.
+struct SavedEq: Codable, Identifiable, Equatable {
+    var id = UUID()
+    var name: String
+    var gains: [Int]
 }
 
 final class DeviceController: ObservableObject {
@@ -33,11 +41,15 @@ final class DeviceController: ObservableObject {
     /// The eight user EQ gains in whole dB. The EQ is write-only on the earbuds, so this is
     /// what the app last sent, remembered across launches.
     @Published private(set) var eqGains = Array(repeating: 0, count: T3ProEq.userBands.count)
-    /// Name of the last applied preset, or nil for the custom curve.
-    @Published private(set) var eqPreset: String?
-
+    /// Name of the last applied preset ("Classic" is the stock curve), or nil for the custom curve.
+    @Published private(set) var eqPreset: String? = "Classic"
+    @Published private(set) var savedEqs: [SavedEq] = []
     /// Connected Bluetooth devices, shown when no earbuds were recognised by name.
     @Published private(set) var candidates: [BluetoothTransport.PairedDevice] = []
+    /// Address of the device a connect/disconnect was just sent for.
+    @Published private(set) var phoneBusy: String?
+
+    static let classicName = "Classic"
 
     private let transport = BluetoothTransport()
     private var parser = FrameParser()
@@ -55,6 +67,7 @@ final class DeviceController: ObservableObject {
         transport.onConnected = { [weak self] name, address in self?.connected(name: name, address: address) }
         transport.onDisconnected = { [weak self] in self?.disconnected() }
         transport.onData = { [weak self] bytes in self?.receive(bytes) }
+        loadSavedEqs()
     }
 
     func start() { transport.start() }
@@ -64,17 +77,25 @@ final class DeviceController: ObservableObject {
         transport.stop()
     }
 
+    /// This Mac's own Bluetooth address, so the dual-connection list can tell which entry is the Mac.
+    var hostAddress: String? { BluetoothTransport.hostAddress }
+
     // MARK: Connection
 
     func refreshCandidates() { candidates = BluetoothTransport.connectedDevices() }
 
     func choose(_ device: BluetoothTransport.PairedDevice) { transport.choose(address: device.address) }
 
+    func refreshBattery() {
+        guard state.connected else { return }
+        send(Request.battery)
+    }
+
     private func connected(name: String, address: String) {
         parser.reset()
         outbox.removeAll()
         self.address = address
-        state = DeviceState(connected: true, connecting: nil, name: name)
+        state = DeviceState(connected: true, connecting: nil, name: name, address: address)
         loadEq()
         send(Request.probe)
 
@@ -172,8 +193,12 @@ final class DeviceController: ObservableObject {
     }
 
     func setPhone(_ phone: KnownPhone, connect: Bool) {
+        phoneBusy = phone.addressText
         send([Request.connectPhone(address: phone.address, connect: connect)])
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in self?.loadPhones() }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+            self?.phoneBusy = nil
+            self?.loadPhones()
+        }
     }
 
     // MARK: Equalizer (write-only, unverified on a real T3 Pro)
@@ -193,10 +218,18 @@ final class DeviceController: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: work)
     }
 
+    /// Switch to the custom curve with the gains as they are.
+    func applyCustomEq() {
+        eqWork?.cancel()
+        eqPreset = nil
+        saveEq()
+        send(T3ProEq.frames(for: T3ProEq.curve(userGains: eqGains)))
+    }
+
     func applyClassicEq() {
         eqWork?.cancel()
         eqGains = Array(repeating: 0, count: T3ProEq.userBands.count)
-        eqPreset = nil
+        eqPreset = Self.classicName
         saveEq()
         send(T3ProEq.frames(for: T3ProEq.classic))
     }
@@ -207,6 +240,30 @@ final class DeviceController: ObservableObject {
         eqPreset = preset.name
         saveEq()
         send(T3ProEq.frames(for: preset.bands))
+    }
+
+    func applySaved(_ saved: SavedEq) {
+        eqWork?.cancel()
+        eqGains = saved.gains
+        eqPreset = nil
+        saveEq()
+        send(T3ProEq.frames(for: T3ProEq.curve(userGains: saved.gains)))
+    }
+
+    func saveCurrentEq(named name: String) {
+        savedEqs.append(SavedEq(name: name, gains: eqGains))
+        persistSavedEqs()
+    }
+
+    func renameSaved(_ saved: SavedEq, to name: String) {
+        guard let index = savedEqs.firstIndex(where: { $0.id == saved.id }) else { return }
+        savedEqs[index].name = name
+        persistSavedEqs()
+    }
+
+    func deleteSaved(_ saved: SavedEq) {
+        savedEqs.removeAll { $0.id == saved.id }
+        persistSavedEqs()
     }
 
     private var eqKey: String { "eq.\(address ?? "default")" }
@@ -220,5 +277,19 @@ final class DeviceController: ObservableObject {
         if let gains = saved["gains"] as? [Int], gains.count == T3ProEq.userBands.count { eqGains = gains }
         let preset = saved["preset"] as? String
         eqPreset = (preset?.isEmpty == false) ? preset : nil
+    }
+
+    private static let savedEqsKey = "eq.saved"
+
+    private func persistSavedEqs() {
+        if let data = try? JSONEncoder().encode(savedEqs) {
+            UserDefaults.standard.set(data, forKey: Self.savedEqsKey)
+        }
+    }
+
+    private func loadSavedEqs() {
+        guard let data = UserDefaults.standard.data(forKey: Self.savedEqsKey),
+              let saved = try? JSONDecoder().decode([SavedEq].self, from: data) else { return }
+        savedEqs = saved
     }
 }
