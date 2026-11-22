@@ -58,7 +58,7 @@ public enum T3ProEq {
         }
     }
 
-    static func payload(count: Int, index: Int, band: EqBand, masterGainDb: Double) -> [UInt8] {
+    public static func payload(count: Int, index: Int, band: EqBand, masterGainDb: Double) -> [UInt8] {
         let master = signedUnits(masterGainDb)
         let gain = signedUnits(band.gainDb)
         let freq = UInt16(clamping: band.hz * 3)
@@ -73,7 +73,7 @@ public enum T3ProEq {
 
     /// dB × 60, rounded half away from zero in hundredths first, as the official app does,
     /// so 4.1 dB is 246 and not 4.1 × 60 = 245.99999.
-    static func signedUnits(_ db: Double) -> Int16 {
+    public static func signedUnits(_ db: Double) -> Int16 {
         let hundredths = (db * 100).rounded()
         let units = (hundredths * 0.6).rounded()
         return Int16(clamping: Int(units))
